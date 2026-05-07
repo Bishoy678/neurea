@@ -65,6 +65,61 @@ class NotificationCubit extends Cubit<NotificationState> {
     _emitLoaded();
   }
 
+  Future<void> addNotification({
+    required String title,
+    required String description,
+    required String type,
+  }) async {
+    try {
+      final uid = _userId;
+      if (uid == null) return;
+      
+      await _db.from('notifications').insert({
+        'user_id': uid,
+        'title': title,
+        'description': description,
+        'type': type,
+        'is_read': false,
+      });
+      
+      await loadNotifications();
+    } catch (e) {
+      // ignore: avoid_print
+      print('Error adding notification: $e');
+    }
+  }
+
+  Future<void> sendAppointmentNotification({
+    required String therapistName,
+    required String appointmentDate,
+    required String appointmentTime,
+  }) async {
+    await addNotification(
+      title: 'Upcoming Session 📅',
+      description: 'You have a session with $therapistName on $appointmentDate at $appointmentTime',
+      type: 'appointment',
+    );
+  }
+
+  Future<void> sendSleepReminderNotification() async {
+    await addNotification(
+      title: 'Time to Sleep 😴',
+      description: 'It\'s getting late. Make sure to get enough rest for a better tomorrow!',
+      type: 'reminder',
+    );
+  }
+
+  Future<void> sendSubscriptionUpdateNotification({
+    required String planName,
+    required String expiryDate,
+  }) async {
+    await addNotification(
+      title: 'Subscription Update 💎',
+      description: 'Your $planName plan will expire on $expiryDate. Renew now!',
+      type: 'general',
+    );
+  }
+
   List<Map<String, dynamic>> getUnread() =>
       _notifications.where((n) => n['is_read'] == false).toList();
 
@@ -83,4 +138,5 @@ class NotificationCubit extends Cubit<NotificationState> {
       ),
     );
   }
-}
+} 
+

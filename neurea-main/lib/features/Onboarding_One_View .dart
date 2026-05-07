@@ -107,13 +107,7 @@ class _OnboardingOneViewState extends State<OnboardingOneView> {
           ),
         ),
         const SizedBox(width: 8),
-        // GestureDetector(
-        //   onTap: _next,
-        //   child: const Text(
-        //     'Skip',
-        //     style: TextStyle(fontSize: 16, color: Colors.black),
-        //   ),
-        // ),
+     
       ],
     );
   }

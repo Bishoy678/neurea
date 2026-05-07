@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class EmergencyContactProfile extends StatefulWidget {
@@ -26,18 +27,46 @@ class _EmergencyContactScreenState extends State<EmergencyContactProfile> {
     try {
       final userId = Supabase.instance.client.auth.currentUser?.id;
       if (userId == null) return;
+      
+      
       final result = await Supabase.instance.client
           .from('emergency_contacts')
           .select('phone')
           .eq('user_id', userId)
           .maybeSingle();
-      if (result != null) _phoneController.text = result['phone'] ?? '';
-    } catch (_) {}
+      
+      if (result != null && result['phone'] != null && result['phone'].toString().isNotEmpty) {
+    
+        _phoneController.text = result['phone'];
+      } else {
+      
+        final profileResult = await Supabase.instance.client
+            .from('profiles')
+            .select('phone')
+            .eq('id', userId)
+            .maybeSingle();
+        
+        if (profileResult != null && profileResult['phone'] != null) {
+          _phoneController.text = profileResult['phone'];
+        }
+      }
+    } catch (e) {
+      print('Error loading phone: $e');
+    }
     setState(() => _isLoading = false);
+  }
+
+  bool _isValidPhone(String phone) {
+
+    final cleanPhone = phone.replaceAll(RegExp(r'[\s\-]'), '');
+ 
+    final regex = RegExp(r'^\d{10,11}$');
+    return regex.hasMatch(cleanPhone);
   }
 
   Future<void> _saveUpdates() async {
     final phone = _phoneController.text.trim();
+    
     if (phone.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -47,14 +76,42 @@ class _EmergencyContactScreenState extends State<EmergencyContactProfile> {
       );
       return;
     }
+    
+    if (!_isValidPhone(phone)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter a valid phone number (10-11 digits only)'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+    
     setState(() => _isSaving = true);
     try {
       final userId = Supabase.instance.client.auth.currentUser?.id;
       if (userId == null) return;
-      await Supabase.instance.client.from('emergency_contacts').upsert({
-        'user_id': userId,
-        'phone': phone,
-      });
+      
+      final existing = await Supabase.instance.client
+          .from('emergency_contacts')
+          .select('user_id')
+          .eq('user_id', userId)
+          .maybeSingle();
+      
+      if (existing != null) {
+
+        await Supabase.instance.client
+            .from('emergency_contacts')
+            .update({'phone': phone})
+            .eq('user_id', userId);
+      } else {
+    
+        await Supabase.instance.client.from('emergency_contacts').insert({
+          'user_id': userId,
+          'phone': phone,
+        });
+      }
+      
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -112,7 +169,7 @@ class _EmergencyContactScreenState extends State<EmergencyContactProfile> {
           : Padding(
               padding: EdgeInsets.all(sw * 0.05),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start, 
                 children: [
                   Container(
                     padding: EdgeInsets.all(sw * 0.04),
@@ -181,9 +238,11 @@ class _EmergencyContactScreenState extends State<EmergencyContactProfile> {
                     child: TextField(
                       controller: _phoneController,
                       keyboardType: TextInputType.phone,
+                      maxLength: 11,
                       decoration: InputDecoration(
-                        hintText: '+20 100 123 4567',
+                        hintText: '01012345678',
                         hintStyle: TextStyle(color: Colors.grey.shade400),
+                        counterText: '',
                         prefixIcon: Icon(
                           Icons.phone_outlined,
                           color: Colors.grey.shade400,
@@ -195,11 +254,14 @@ class _EmergencyContactScreenState extends State<EmergencyContactProfile> {
                           vertical: sw * 0.035,
                         ),
                       ),
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                      ],
                     ),
                   ),
                   SizedBox(height: sw * 0.02),
                   Text(
-                    'This is the number you provided during sign-up.',
+                    'Enter 10-11 digits only (e.g., 01012345678)',
                     style: TextStyle(fontSize: sw * 0.03, color: Colors.grey),
                   ),
                   const Spacer(),
@@ -233,4 +295,4 @@ class _EmergencyContactScreenState extends State<EmergencyContactProfile> {
             ),
     );
   }
-}
+} 

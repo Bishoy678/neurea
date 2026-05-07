@@ -1,8 +1,8 @@
 import 'dart:io';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:neurea/core/presentation/screens/Notification_Helper.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:neurea/core/presentation/screens/Notification_Helper.dart';
 import 'profile_state.dart';
 
 class ProfileCubit extends Cubit<ProfileState> {
@@ -11,10 +11,14 @@ class ProfileCubit extends Cubit<ProfileState> {
   final _supabase = Supabase.instance.client;
 
   Future<void> loadProfile() async {
+    if (isClosed) return;
     emit(ProfileLoading());
     try {
       final user = _supabase.auth.currentUser;
-      if (user == null) return emit(ProfileError('User not logged in'));
+      if (user == null) {
+        if (isClosed) return;
+        return emit(ProfileError('User not logged in'));
+      }
 
       final email = user.email ?? '';
       String name = user.userMetadata?['full_name'] ?? '';
@@ -28,14 +32,10 @@ class ProfileCubit extends Cubit<ProfileState> {
 
       final photoUrl = data?['photo_url'] as String? ?? '';
 
+      if (isClosed) return;
       emit(ProfileLoaded(name: name, email: email, photoUrl: photoUrl));
-
-      await NotificationHelper.sendOnceToday(
-        title: 'Profile Viewed 👤',
-        description: 'Keep your profile up to date for a better experience!',
-        type: 'wellness',
-      );
     } catch (e) {
+      if (isClosed) return;
       emit(ProfileError(e.toString()));
     }
   }
@@ -44,6 +44,7 @@ class ProfileCubit extends Cubit<ProfileState> {
     required String firstName,
     required String lastName,
   }) async {
+    if (isClosed) return;
     emit(ProfileLoading());
     try {
       await _supabase.auth.updateUser(
@@ -55,9 +56,18 @@ class ProfileCubit extends Cubit<ProfileState> {
           },
         ),
       );
+      
+      await NotificationHelper.send(
+        title: 'Profile Updated ✅',
+        description: 'Your profile has been successfully updated!',
+        type: 'general',
+      );
+      
+      if (isClosed) return;
       emit(ProfileUpdated());
       await loadProfile();
     } catch (e) {
+      if (isClosed) return;
       emit(ProfileError(e.toString()));
     }
   }
@@ -72,6 +82,7 @@ class ProfileCubit extends Cubit<ProfileState> {
     try {
       final user = _supabase.auth.currentUser;
       if (user == null) {
+        if (isClosed) return;
         emit(ProfileError('User not logged in'));
         return;
       }
@@ -99,8 +110,15 @@ class ProfileCubit extends Cubit<ProfileState> {
       
       await _supabase.from('profiles').upsert({'id': uid, 'photo_url': url});
 
+      await NotificationHelper.send(
+        title: 'Profile Picture Updated 📸',
+        description: 'Your profile picture has been successfully updated!',
+        type: 'general',
+      );
+
       await loadProfile();
     } on StorageException catch (e) {
+      if (isClosed) return;
       if (e.statusCode == '403') {
         emit(
           ProfileError('Permission denied. Check Supabase Storage policies.'),
@@ -109,7 +127,8 @@ class ProfileCubit extends Cubit<ProfileState> {
         emit(ProfileError('Storage error: ${e.message}'));
       }
     } catch (e) {
+      if (isClosed) return;
       emit(ProfileError(e.toString()));
     }
   }
-}
+} 

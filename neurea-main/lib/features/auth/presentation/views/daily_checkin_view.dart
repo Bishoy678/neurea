@@ -189,7 +189,7 @@ class _DailyCheckinBodyState extends State<_DailyCheckinBody> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 30),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Container(
@@ -212,7 +212,7 @@ class _DailyCheckinBodyState extends State<_DailyCheckinBody> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 100),
+                  const SizedBox(height: 80),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: SizedBox(

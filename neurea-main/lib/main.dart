@@ -1,14 +1,14 @@
-// ignore_for_file: avoid_print
-import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:neurea/core/presentation/screens/Notification_Helper.dart'
-    show NotificationHelper;
 import 'package:neurea/Home/Home_Screen_daily.dart';
+import 'package:neurea/core/presentation/screens/Notification_Helper.dart';
+import 'package:neurea/cubit/profile/profile_cubit.dart';
 import 'package:neurea/features/splash_screen_view.dart';
 import 'package:neurea/therapists/presentation/screens/therapist_details_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:app_links/app_links.dart';
 import 'package:timezone/data/latest.dart' as tz;
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -27,6 +27,9 @@ void main() async {
   );
 
   tz.initializeTimeZones();
+  await NotificationHelper.initialize();
+  await NotificationHelper.scheduleAllNotifications();
+
   const AndroidInitializationSettings androidSettings =
       AndroidInitializationSettings('@mipmap/ic_launcher');
   const InitializationSettings initSettings = InitializationSettings(
@@ -52,12 +55,13 @@ Future<void> _checkLastOpenDate() async {
     if (response != null && response['last_open'] != null) {
       final lastOpen = DateTime.parse(response['last_open'] as String);
       final diff = now.difference(lastOpen).inDays;
+
       if (diff >= 3) {
         await NotificationHelper.send(
           title: 'We miss you! 👋',
           description:
               "You haven't opened Neurea in $diff days. Come back and check in!",
-          type: 'wellness',
+          type: 'reminder',
         );
       }
     }
@@ -67,6 +71,7 @@ Future<void> _checkLastOpenDate() async {
       'last_open': now.toIso8601String(),
     });
   } catch (e) {
+    // ignore: avoid_print
     print('Activity check error: $e');
   }
 }
@@ -109,6 +114,7 @@ class _NeureaState extends State<Neurea> {
           );
         });
       } catch (e) {
+        // ignore: avoid_print
         print('Deep link error: $e');
       }
     }
@@ -116,22 +122,24 @@ class _NeureaState extends State<Neurea> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      navigatorKey: _navigatorKey,
-      debugShowCheckedModeBanner: false,
-      // theme: AppTheme.light,
-      // darkTheme: AppTheme.dark,
-      // themeMode: ThemeMode.light,
-      home: const SplashScreenView(),
-      onGenerateRoute: (settings) {
-        if (settings.name == '/therapist_details') {
-          final therapist = settings.arguments as Map<String, dynamic>;
-          return MaterialPageRoute(
-            builder: (_) => TherapistDetailsScreen(therapist: therapist),
-          );
-        }
-        return null;
-      },
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (context) => ProfileCubit()..loadProfile()),
+      ],
+      child: MaterialApp(
+        navigatorKey: _navigatorKey,
+        debugShowCheckedModeBanner: false,
+        home: const SplashScreenView(),
+        onGenerateRoute: (settings) {
+          if (settings.name == '/therapist_details') {
+            final therapist = settings.arguments as Map<String, dynamic>;
+            return MaterialPageRoute(
+              builder: (_) => TherapistDetailsScreen(therapist: therapist),
+            );
+          }
+          return null;
+        },
+      ),
     );
   }
 }

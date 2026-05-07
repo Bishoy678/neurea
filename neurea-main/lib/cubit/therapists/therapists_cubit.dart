@@ -9,6 +9,7 @@ class TherapistsCubit extends Cubit<TherapistsState> {
   List<Map<String, dynamic>> _filtered = [];
   Set<String> _favorites = {};
   String _selectedCategory = 'All';
+  String _searchQuery = '';
 
   Future<void> loadTherapists() async {
     emit(TherapistsLoading());
@@ -18,7 +19,7 @@ class TherapistsCubit extends Cubit<TherapistsState> {
           .select();
       _allTherapists = List<Map<String, dynamic>>.from(response);
       _filtered = List.from(_allTherapists);
-      _emitLoaded();
+      _applyFilters();
     } catch (e) {
       emit(TherapistsError(e.toString()));
     }
@@ -31,37 +32,39 @@ class TherapistsCubit extends Cubit<TherapistsState> {
     _allTherapists = therapists;
     _filtered = List.from(therapists);
     _favorites = Set<String>.from(favorites);
-    _emitLoaded();
+    _applyFilters();
   }
 
   void search(String query) {
-    if (query.isEmpty) {
-      _applyCategory(_selectedCategory);
-      return;
-    }
-    _filtered = _allTherapists.where((t) {
-      final name = t['name']?.toString().toLowerCase() ?? '';
-      final specialty = t['specialty']?.toString().toLowerCase() ?? '';
-      return name.contains(query.toLowerCase()) ||
-          specialty.contains(query.toLowerCase());
-    }).toList();
-    _emitLoaded();
+    _searchQuery = query;
+    _applyFilters();
   }
 
   void filterByCategory(String category) {
     _selectedCategory = category;
-    _applyCategory(category);
+    _applyFilters();
   }
 
-  void _applyCategory(String category) {
-    if (category == 'All') {
-      _filtered = List.from(_allTherapists);
-    } else {
-      _filtered = _allTherapists.where((t) {
+  void _applyFilters() {
+    var filtered = List<Map<String, dynamic>>.from(_allTherapists);
+    
+    if (_selectedCategory != 'All') {
+      filtered = filtered.where((t) {
         final specialty = t['specialty']?.toString().toLowerCase() ?? '';
-        return specialty.contains(category.toLowerCase());
+        return specialty.contains(_selectedCategory.toLowerCase());
       }).toList();
     }
+    
+    if (_searchQuery.isNotEmpty) {
+      filtered = filtered.where((t) {
+        final name = t['name']?.toString().toLowerCase() ?? '';
+        final specialty = t['specialty']?.toString().toLowerCase() ?? '';
+        final query = _searchQuery.toLowerCase();
+        return name.contains(query) || specialty.contains(query);
+      }).toList();
+    }
+    
+    _filtered = filtered;
     _emitLoaded();
   }
 

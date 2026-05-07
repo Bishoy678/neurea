@@ -1,5 +1,4 @@
 // ignore_for_file: curly_braces_in_flow_control_structures
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:neurea/Medicain/Care_Plan_Screen.dart';
@@ -35,6 +34,20 @@ class _TherapistsListBodyState extends State<_TherapistsListBody> {
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  void _openCarePlanForTherapist(BuildContext context, Map<String, dynamic> therapist) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => CarePlanScreen(
+          therapistName: therapist['name'] ?? '',
+          therapistImage: therapist['image'] ?? '',
+          specialty: therapist['specialty'] ?? '',
+          therapistId: therapist['id']?.toString() ?? '',
+        ),
+      ),
+    );
   }
 
   @override
@@ -81,12 +94,25 @@ class _TherapistsListBodyState extends State<_TherapistsListBody> {
                   height: 24,
                 ),
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const CarePlanScreen(),
-                    ),
-                  );
+              
+                  if (filtered.isNotEmpty) {
+                    _openCarePlanForTherapist(context, filtered[0]);
+                  } else if (therapists.isNotEmpty) {
+                    _openCarePlanForTherapist(context, therapists[0]);
+                  } else {
+        
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const CarePlanScreen(
+                          therapistName: '',
+                          therapistImage: '',
+                          specialty: '',
+                          therapistId: '',
+                        ),
+                      ),
+                    );
+                  }
                 },
               ),
              

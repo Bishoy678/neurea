@@ -42,6 +42,24 @@ class _CreatePasswordViewState extends State<CreatePasswordView> {
     super.dispose();
   }
 
+  Future<bool> _isPhoneTaken() async {
+    final result = await _db
+        .from('profiles')
+        .select('id')
+        .eq('phone', widget.phone)
+        .maybeSingle();
+    return result != null;
+  }
+
+  Future<bool> _isEmailTaken() async {
+    final result = await _db
+        .from('profiles')
+        .select('id')
+        .eq('email', widget.email)
+        .maybeSingle();
+    return result != null;
+  }
+
   Future<void> _onNext() async {
     final password = _passwordController.text.trim();
     final confirm = _confirmController.text.trim();
@@ -62,10 +80,18 @@ class _CreatePasswordViewState extends State<CreatePasswordView> {
     setState(() => _isLoading = true);
 
     try {
+
       final isDuplicatePhone = await _isPhoneTaken();
       if (!mounted) return;
       if (isDuplicatePhone) {
         _showError('This phone number is already registered');
+        return;
+      }
+      
+      final isDuplicateEmail = await _isEmailTaken();
+      if (!mounted) return;
+      if (isDuplicateEmail) {
+        _showError('This email is already registered');
         return;
       }
 
@@ -105,21 +131,14 @@ class _CreatePasswordViewState extends State<CreatePasswordView> {
 
       if (msg.contains('profiles_phone_key') || msg.contains('duplicate key')) {
         _showError('This phone number is already registered');
+      } else if (msg.contains('duplicate key') && msg.contains('email')) {
+        _showError('This email is already registered');
       } else {
         _showError(e.toString().replaceAll('Exception:', '').trim());
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
-  }
-
-  Future<bool> _isPhoneTaken() async {
-    final result = await _db
-        .from('profiles')
-        .select('id')
-        .eq('phone', widget.phone)
-        .maybeSingle();
-    return result != null;
   }
 
   void _showError(String message) {

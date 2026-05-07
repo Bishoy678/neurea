@@ -106,12 +106,15 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
     final sh = MediaQuery.of(context).size.height;
 
     return BlocConsumer<ProfileCubit, ProfileState>(
-      listener: (ctx, state) {
+      listener: (ctx, state) async {
         if (state is ProfileLoaded) {
           _initFields(state.name);
         }
         if (state is ProfileUpdated) {
           _success();
+          
+      
+          context.read<ProfileCubit>().loadProfile();
           Navigator.pop(ctx);
         }
         if (state is ProfileError) {
@@ -282,7 +285,7 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
   Widget _nameSection(double sw) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      _label('Full Name', sw),
+      _label('Nickname', sw),
       SizedBox(height: sw * 0.022),
       _inputField(_fullNameController, 'Enter your full name', sw),
     ],

@@ -6,6 +6,7 @@ import 'package:neurea/cubit/payment/payment_cubit.dart';
 import 'package:neurea/cubit/payment/payment_state.dart';
 import 'package:neurea/payment/Add_Card_Screen.dart';
 import 'package:neurea/payment/Payment_Success_Screen.dart';
+import 'package:neurea/payment/Payment_Failure_Screen.dart';
 
 class PaymentScreen extends StatelessWidget {
   final String therapistName;
@@ -31,6 +32,10 @@ class PaymentScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // ✅ فعّل وضع الاختبار عشان تظهر صفحة الفشل
+    // PaymentCubit.testMode = true;
+    // PaymentCubit.forceError = true;
+    
     return BlocProvider(
       create: (_) => PaymentCubit(),
       child: _PaymentBody(
@@ -83,21 +88,32 @@ class _PaymentBodyState extends State<_PaymentBody> {
   String? _cardNumberError;
   String? _expiryError;
   String? _cvcError;
+  String? _nameError;
+
+  bool _isValidName(String name) {
+    if (name.isEmpty) return false;
+    final nameRegex = RegExp(r'^[a-zA-Z\s]+$');
+    return nameRegex.hasMatch(name);
+  }
 
   bool get _isFormValid {
-    return _nameController.text.isNotEmpty &&
+    return _isValidName(_nameController.text) &&
         _cardNumberController.text.replaceAll(' ', '').length == 16 &&
         _expiryController.text.length == 5 &&
         _cvcController.text.length == 3 &&
         _cardNumberError == null &&
         _expiryError == null &&
-        _cvcError == null;
+        _cvcError == null &&
+        _nameError == null;
   }
 
   @override
   void initState() {
     super.initState();
-    _nameController.addListener(() => setState(() {}));
+    _nameController.addListener(() {
+      _validateName(_nameController.text);
+      setState(() {});
+    });
     _cardNumberController.addListener(() {
       setState(() => _validateCardNumber(_cardNumberController.text));
     });
@@ -116,6 +132,16 @@ class _PaymentBodyState extends State<_PaymentBody> {
     _expiryController.dispose();
     _cvcController.dispose();
     super.dispose();
+  }
+
+  void _validateName(String value) {
+    if (value.isEmpty) {
+      _nameError = 'Cardholder name is required';
+    } else if (!RegExp(r'^[a-zA-Z\s]+$').hasMatch(value)) {
+      _nameError = 'Name must contain only letters';
+    } else {
+      _nameError = null;
+    }
   }
 
   void _validateCardNumber(String value) {
@@ -173,6 +199,8 @@ class _PaymentBodyState extends State<_PaymentBody> {
     cubit.confirmPayment(
       therapistId: widget.therapistId,
       therapistName: widget.therapistName,
+      therapistImage: widget.therapistImage,
+      specialty: widget.specialty,
       appointmentDay: widget.appointmentDay,
       appointmentDate: widget.appointmentDate,
       appointmentTime: widget.appointmentTime,
@@ -208,7 +236,6 @@ class _PaymentBodyState extends State<_PaymentBody> {
         buildWhen: (prev, curr) => prev != curr,
         listener: (context, state) {
           if (state is PaymentSuccess) {
-         
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.message),
@@ -217,7 +244,6 @@ class _PaymentBodyState extends State<_PaymentBody> {
               ),
             );
             
-        
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -232,18 +258,25 @@ class _PaymentBodyState extends State<_PaymentBody> {
               ),
             );
           } else if (state is PaymentError) {
-           
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.message),
                 backgroundColor: Colors.red,
-                duration: const Duration(seconds: 4),
-                action: SnackBarAction(
-                  label: 'Dismiss',
-                  textColor: Colors.white,
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                  },
+                duration: const Duration(seconds: 3),
+              ),
+            );
+            
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => PaymentFailureScreen(
+                  therapistName: widget.therapistName,
+                  therapistImage: widget.therapistImage,
+                  specialty: widget.specialty,
+                  appointmentDay: widget.appointmentDay,
+                  appointmentDate: widget.appointmentDate,
+                  appointmentTime: widget.appointmentTime,
+                  errorMessage: state.message,
                 ),
               ),
             );
@@ -296,7 +329,7 @@ class _PaymentBodyState extends State<_PaymentBody> {
                   SizedBox(height: sh * 0.03),
                   _buildLabel('Cardholder Name', sw),
                   SizedBox(height: sh * 0.01),
-                  _buildTextField(_nameController, 'E.G. Mohamed A', sw, sh),
+                  _buildTextField(_nameController, 'E.G. Mohamed A', sw, sh, errorText: _nameError),
                   SizedBox(height: sh * 0.02),
                   _buildLabel('Card Number', sw),
                   SizedBox(height: sh * 0.01),

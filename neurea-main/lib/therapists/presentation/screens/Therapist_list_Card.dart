@@ -194,4 +194,4 @@ class TherapistListCard extends StatelessWidget {
       ),
     );
   }
-}
+} 

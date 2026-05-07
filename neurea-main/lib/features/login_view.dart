@@ -10,6 +10,7 @@ import 'package:neurea/features/Forget_password.dart';
 import 'package:neurea/Home/Home_Screen_daily.dart';
 import 'package:neurea/features/auth/presentation/views/signup_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' hide AuthState;
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -42,10 +43,29 @@ class _LoginViewState extends State<LoginView> {
     final savedEmail = prefs.getString('saved_email');
     final savedPassword = prefs.getString('saved_password');
     
+    // ignore: avoid_print
     print('═══════════════════════════════════════');
+    // ignore: avoid_print
     print('📧 Saved Email from storage: $savedEmail');
+    // ignore: avoid_print
     print('🔑 Saved Password from storage: $savedPassword');
+    // ignore: avoid_print
     print('═══════════════════════════════════════');
+    
+    final currentUser = Supabase.instance.client.auth.currentUser;
+    
+    if (currentUser != null && currentUser.email != savedEmail) {
+      // ignore: avoid_print
+      print('⚠️ Current user email differs from saved email. Clearing saved credentials...');
+      await prefs.remove('saved_email');
+      await prefs.remove('saved_password');
+      setState(() {
+        _emailController.text = '';
+        _passwordController.text = '';
+        _saveInfo = false;
+      });
+      return;
+    }
     
     if (savedEmail != null && savedPassword != null) {
       setState(() {
@@ -53,21 +73,64 @@ class _LoginViewState extends State<LoginView> {
         _passwordController.text = savedPassword;
         _saveInfo = true;
       });
+      // ignore: avoid_print
       print('✅ Fields populated successfully');
     } else {
+      // ignore: avoid_print
       print('❌ No saved credentials found');
     }
   }
 
+  Future<void> _saveCredentials(String email, String password) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('saved_email', email);
+    await prefs.setString('saved_password', password);
+  }
+
+  Future<void> _clearSavedCredentials() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('saved_email');
+    await prefs.remove('saved_password');
+    setState(() {
+      _emailController.text = '';
+      _passwordController.text = '';
+      _saveInfo = false;
+    });
+    // ignore: avoid_print
+    print('🗑️ Saved credentials cleared');
+  }
+  
+  Future<void> updateSavedPassword(String newPassword) async {
+    if (_saveInfo) {
+      final prefs = await SharedPreferences.getInstance();
+      final savedEmail = prefs.getString('saved_email');
+      if (savedEmail != null) {
+        await prefs.setString('saved_password', newPassword);
+        setState(() {
+          _passwordController.text = newPassword;
+        });
+        // ignore: avoid_print
+        print('✅ Saved password updated');
+      }
+    }
+  }
+
   void _onLogin(BuildContext context, AuthCubit cubit) {
-    if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+    
+    if (email.isEmpty || password.isEmpty) {
       _showError(context, 'Please enter email and password');
       return;
     }
-    cubit.login(
-      email: _emailController.text.trim(),
-      password: _passwordController.text,
-    );
+    
+    if (_saveInfo) {
+      _saveCredentials(email, password);
+    } else {
+      _clearSavedCredentials();
+    }
+    
+    cubit.login(email: email, password: password);
   }
 
   void _showError(BuildContext context, String message) {
@@ -103,7 +166,7 @@ class _LoginViewState extends State<LoginView> {
     final cubit = context.read<AuthCubit>();
     final sw = MediaQuery.of(context).size.width;
 
-     return Scaffold(
+    return Scaffold(
       body: ScrollConfiguration(
         behavior: const ScrollBehavior().copyWith(overscroll: false),
         child: SingleChildScrollView(
@@ -521,4 +584,4 @@ class _BottomBar extends StatelessWidget {
       ),
     );
   }
-}
+} 

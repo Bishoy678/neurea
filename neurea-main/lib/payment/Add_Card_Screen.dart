@@ -2,6 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:neurea/payment/Payment_Success_Screen.dart';
+import 'package:neurea/payment/Payment_Failure_Screen.dart';
+import 'package:neurea/cubit/payment/payment_cubit.dart';
 
 class AddCardScreen extends StatefulWidget {
   final String therapistName;
@@ -10,7 +12,7 @@ class AddCardScreen extends StatefulWidget {
   final String appointmentDay;
   final String appointmentDate;
   final String appointmentTime;
-
+   
   const AddCardScreen({
     super.key,
     required this.therapistName,
@@ -36,15 +38,23 @@ class _AddCardScreenState extends State<AddCardScreen> {
   String? _cardNumberError;
   String? _expiryError;
   String? _cvcError;
+  String? _nameError;
+
+  bool _isValidName(String name) {
+    if (name.isEmpty) return false;
+    final nameRegex = RegExp(r'^[a-zA-Z\s]+$');
+    return nameRegex.hasMatch(name);
+  }
 
   bool get _isFormValid {
-    return _nameController.text.isNotEmpty &&
+    return _isValidName(_nameController.text) &&
         _cardNumberController.text.replaceAll(' ', '').length == 16 &&
         _expiryController.text.length == 5 &&
         _cvcController.text.length == 3 &&
         _cardNumberError == null &&
         _expiryError == null &&
-        _cvcError == null;
+        _cvcError == null &&
+        _nameError == null;
   }
 
   String get cardHolderDisplay =>
@@ -63,7 +73,10 @@ class _AddCardScreenState extends State<AddCardScreen> {
   @override
   void initState() {
     super.initState();
-    _nameController.addListener(() => setState(() {}));
+    _nameController.addListener(() {
+      _validateName(_nameController.text);
+      setState(() {});
+    });
     _cardNumberController.addListener(() {
       setState(() => _validateCardNumber(_cardNumberController.text));
     });
@@ -84,14 +97,25 @@ class _AddCardScreenState extends State<AddCardScreen> {
     super.dispose();
   }
 
+  void _validateName(String value) {
+    if (value.isEmpty) {
+      _nameError = 'Cardholder name is required';
+    } else if (!RegExp(r'^[a-zA-Z\s]+$').hasMatch(value)) {
+      _nameError = 'Name must contain only letters';
+    } else {
+      _nameError = null;
+    }
+  }
+
   void _validateCardNumber(String value) {
     final digits = value.replaceAll(' ', '');
     if (digits.isEmpty) {
       _cardNumberError = null;
-    } else if (digits.length < 16)
+    } else if (digits.length < 16) {
       _cardNumberError = 'Card number must be 16 digits';
-    else
+    } else {
       _cardNumberError = null;
+    }
   }
 
   void _formatAndValidateExpiry(String value) {
@@ -131,31 +155,63 @@ class _AddCardScreenState extends State<AddCardScreen> {
   void _validateCvc(String value) {
     if (value.isEmpty) {
       _cvcError = null;
-    } else if (value.length < 3)
+    } else if (value.length < 3) {
       _cvcError = 'CVC must be 3 digits';
-    else if (value.length > 3)
+    } else if (value.length > 3) {
       _cvcError = 'CVC must be 3 digits only';
-    else
+    } else {
       _cvcError = null;
+    }
   }
 
-  void _onAddCard() {
+  
+  Future<bool> _processPayment() async {
+    await Future.delayed(const Duration(seconds: 1));
+    
+    if (PaymentCubit.testMode && PaymentCubit.forceError) {
+      return false;
+    }
+    return true;
+  }
+
+  void _onAddCard() async {
     if (!_isFormValid) return;
 
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(
-        builder: (_) => PaymentSuccessScreen(
-          therapistName: widget.therapistName,
-          therapistImage: widget.therapistImage,
-          specialty: widget.specialty,
-          appointmentDay: widget.appointmentDay,
-          appointmentDate: widget.appointmentDate,
-          appointmentTime: widget.appointmentTime,
+    final success = await _processPayment();
+
+    if (success) {
+      if (!mounted) return;
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (_) => PaymentSuccessScreen(
+            therapistName: widget.therapistName,
+            therapistImage: widget.therapistImage,
+            specialty: widget.specialty,
+            appointmentDay: widget.appointmentDay,
+            appointmentDate: widget.appointmentDate,
+            appointmentTime: widget.appointmentTime,
+          ),
         ),
-      ),
-      (route) => route.isFirst,
-    );
+        (route) => route.isFirst,
+      );
+    } else {
+      if (!mounted) return;
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => PaymentFailureScreen(
+            therapistName: widget.therapistName,
+            therapistImage: widget.therapistImage,
+            specialty: widget.specialty,
+            appointmentDay: widget.appointmentDay,
+            appointmentDate: widget.appointmentDate,
+            appointmentTime: widget.appointmentTime,
+            errorMessage: 'Payment failed. Please check your card details and try again.',
+          ),
+        ),
+      );
+    }
   }
 
   @override
@@ -176,7 +232,6 @@ class _AddCardScreenState extends State<AddCardScreen> {
         ),
         centerTitle: true,
       ),
-      // ✅ التعديل: إضافة ScrollConfiguration لمنع الـ overscroll
       body: ScrollConfiguration(
         behavior: const ScrollBehavior().copyWith(overscroll: false),
         child: SingleChildScrollView(
@@ -189,7 +244,7 @@ class _AddCardScreenState extends State<AddCardScreen> {
               const SizedBox(height: 24),
               _buildLabel('Cardholder Name'),
               const SizedBox(height: 8),
-              _buildTextField(_nameController, 'E.G. Bishoy K'),
+              _buildTextField(_nameController, 'E.G. Bishoy K', errorText: _nameError),
               const SizedBox(height: 16),
               _buildLabel('Card Number'),
               const SizedBox(height: 8),

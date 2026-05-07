@@ -20,12 +20,13 @@ class ChatCubit extends Cubit<ChatState> {
         return;
       }
 
+      
       var query = Supabase.instance.client
-          .from('therapist_messages')
+          .from('chat_messages')
           .select()
           .eq('user_id', userId);
 
-      if (therapistId != null) {
+      if (therapistId != null && therapistId.isNotEmpty) {
         query = query.eq('therapist_id', therapistId);
       }
 
@@ -44,14 +45,19 @@ class ChatCubit extends Cubit<ChatState> {
     _channel?.unsubscribe();
 
     _channel = Supabase.instance.client
-        .channel('therapist_messages_$therapistId')
+        .channel('chat_messages_$therapistId')
         .onPostgresChanges(
           event: PostgresChangeEvent.insert,
           schema: 'public',
-          table: 'therapist_messages',
+          table: 'chat_messages',
           callback: (payload) {
             final newMessage = payload.newRecord;
-            if (newMessage['user_id'] == userId &&
+           
+            final isDuplicate = _messages.any((msg) => 
+                msg['content'] == newMessage['content'] && 
+                msg['created_at'] == newMessage['created_at']);
+            
+            if (!isDuplicate && newMessage['user_id'] == userId &&
                 newMessage['therapist_id'] == therapistId) {
               _messages.add(newMessage);
               emit(ChatLoaded(List.from(_messages)));
@@ -67,18 +73,29 @@ class ChatCubit extends Cubit<ChatState> {
     final userId = Supabase.instance.client.auth.currentUser?.id;
     if (userId == null) return;
 
-    emit(ChatSending(List.from(_messages)));
+    final tempMessage = {
+      'user_id': userId,
+      'therapist_id': _therapistId,
+      'content': content.trim(),
+      'is_sent': true,
+      'created_at': DateTime.now().toIso8601String(),
+    };
+    
+    _messages.add(tempMessage);
+    emit(ChatLoaded(List.from(_messages)));  
 
     try {
-      await Supabase.instance.client.from('therapist_messages').insert({
+      await Supabase.instance.client.from('chat_messages').insert({
         'user_id': userId,
         'therapist_id': _therapistId,
         'content': content.trim(),
         'is_sent': true,
       });
+      
     } catch (e) {
+      _messages.removeWhere((msg) => msg == tempMessage);
       emit(ChatLoaded(List.from(_messages)));
-      emit(ChatError('Failed to send message'));
+      emit(ChatError('Failed to send message: ${e.toString()}'));
     }
   }
 
@@ -87,4 +104,5 @@ class ChatCubit extends Cubit<ChatState> {
     _channel?.unsubscribe();
     return super.close();
   }
-}
+} 
+  

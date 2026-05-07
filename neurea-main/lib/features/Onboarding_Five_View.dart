@@ -58,13 +58,7 @@ class _OnboardingFiveViewState extends State<OnboardingFiveView> {
           'daily_rhythm': widget.dailyRhythm,
           'account_status': options[selected!],
         });
-        await NotificationHelper.send(
-          title: 'Welcome to Neurea! 🎉',
-          description:
-              'You\'ve completed your setup. Your mental wellness journey starts now!',
-          type: 'achievement',
-        );
-      }
+      } 
 
       if (!mounted) return;
       Navigator.pushReplacement(

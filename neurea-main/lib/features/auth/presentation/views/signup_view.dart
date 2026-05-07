@@ -1,6 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:neurea/features/auth/presentation/views/create_password_view.dart';
 import 'package:neurea/features/login_view.dart';
 
@@ -38,7 +39,34 @@ class _SignupViewState extends State<SignupView> {
 
     setState(() => _isLoading = true);
     try {
+      final supabase = Supabase.instance.client;
+      
+      final existingPhone = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('phone', _phoneController.text.trim())
+          .maybeSingle();
+      
+      if (existingPhone != null) {
+        _showError('This phone number is already registered');
+        setState(() => _isLoading = false);
+        return;
+      }
+      
+      final existingUser = await supabase
+          .from('users')
+          .select('id')
+          .eq('email', _emailController.text.trim())
+          .maybeSingle();
+      
+      if (existingUser != null) {
+        _showError('This email is already registered');
+        setState(() => _isLoading = false);
+        return;
+      }
+      
       Navigator.push(
+        // ignore: use_build_context_synchronously
         context,
         MaterialPageRoute(
           builder: (_) => CreatePasswordView(

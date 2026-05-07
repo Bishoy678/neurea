@@ -3,9 +3,21 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:neurea/therapists/presentation/screens/Therapist_Chat_With_Messages_Screen.dart';
 
 class CarePlanScreen extends StatefulWidget {
-  const CarePlanScreen({super.key});
+  final String therapistName;
+  final String therapistImage;
+  final String specialty;
+  final String therapistId;
+
+  const CarePlanScreen({
+    super.key,
+    required this.therapistName,
+    required this.therapistImage,
+    required this.specialty,
+    required this.therapistId,
+  });
 
   @override
   State<CarePlanScreen> createState() => _CarePlanScreenState();
@@ -46,6 +58,46 @@ class _CarePlanScreenState extends State<CarePlanScreen> {
         duration: Duration(seconds: 2),
       ),
     );
+  }
+
+  Widget _buildTherapistImage() {
+    if (widget.therapistImage.isEmpty) {
+      return const Icon(
+        Icons.person,
+        color: Color(0xFF5C2D91),
+        size: 30,
+      );
+    } else if (widget.therapistImage.startsWith('http')) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Image.network(
+          widget.therapistImage,
+          width: 50,
+          height: 50,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => const Icon(
+            Icons.person,
+            color: Color(0xFF5C2D91),
+            size: 30,
+          ),
+        ),
+      );
+    } else {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Image.asset(
+          widget.therapistImage,
+          width: 50,
+          height: 50,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => const Icon(
+            Icons.person,
+            color: Color(0xFF5C2D91),
+            size: 30,
+          ),
+        ),
+      );
+    }
   }
 
   @override
@@ -317,14 +369,12 @@ class _CarePlanScreenState extends State<CarePlanScreen> {
     );
   }
 
- 
   Widget _buildSessionsTab() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-       
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(20),
@@ -359,28 +409,24 @@ class _CarePlanScreenState extends State<CarePlanScreen> {
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Icon(
-                        Icons.person,
-                        color: Color(0xFF5C2D91),
-                        size: 30,
-                      ),
+                      child: _buildTherapistImage(),
                     ),
                     const SizedBox(width: 12),
-                    const Expanded(
+                    Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Dr. Mike Bruce',
-                            style: TextStyle(
+                            widget.therapistName,
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           Text(
-                            'Trauma Specialist',
-                            style: TextStyle(
+                            widget.specialty,
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 12,
                             ),
@@ -421,7 +467,16 @@ class _CarePlanScreenState extends State<CarePlanScreen> {
                       ),
                     ),
                     onPressed: () {
-                     
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => TherapistChatWithMessagesScreen(
+                            therapistName: widget.therapistName,
+                            therapistImage: widget.therapistImage,
+                            therapistId: widget.therapistId,
+                          ),
+                        ),
+                      );
                     },
                     child: const Text(
                       'Join Session',

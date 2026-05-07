@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use, use_key_in_widget_constructors, use_build_context_synchronously
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:neurea/core/presentation/screens/Notification_Helper.dart';
 import 'package:neurea/cubit/payment/payment_cubit.dart';
 import 'package:neurea/cubit/payment/payment_state.dart';
 import 'package:neurea/payment/payment_screen.dart';
@@ -374,6 +375,7 @@ class _BookingBottomSheetState extends State<BookingBottomSheet> {
   ];
 
   final List<String> times = ['13:00 PM', '16:00 PM', '18:00 PM'];
+  
   void _confirmBooking(BuildContext context) {
     if (selectedTime == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -388,6 +390,20 @@ class _BookingBottomSheetState extends State<BookingBottomSheet> {
     final day = days[selectedDay]['day']!;
     final date = days[selectedDay]['date']!;
     final time = times[selectedTime!];
+    
+
+    final now = DateTime.now();
+    final appointmentDate = DateTime(
+      now.year,
+      now.month,
+      int.parse(date),
+    );
+    
+    NotificationHelper.sendAppointmentReminder(
+      therapistName: widget.therapistName,
+      appointmentDate: appointmentDate,
+      appointmentTime: time,
+    );
 
     Navigator.pop(context);
     Navigator.push(

@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:neurea/cubit/auth/auth_cubit.dart';
 import 'package:neurea/cubit/auth/auth_state.dart';
 import 'package:neurea/features/login_view.dart';
@@ -34,6 +35,13 @@ class _ForgetPassword3State extends State<ForgetPassword3> {
     );
   }
 
+  Future<void> _clearSavedPassword() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('saved_password');
+    // ignore: avoid_print
+    print('🗑️ Saved password cleared after reset');
+  }
+
   void _resetPassword(BuildContext context) {
     if (_passwordController.text.length < 6) {
       _showSnack('Password must be at least 6 characters');
@@ -51,9 +59,12 @@ class _ForgetPassword3State extends State<ForgetPassword3> {
     return BlocProvider(
       create: (_) => AuthCubit(),
       child: BlocConsumer<AuthCubit, AuthState>(
-        listener: (context, state) {
+        listener: (context, state) async {
           if (state is AuthSuccess) {
             _showSnack('Password reset successfully!', isError: false);
+            
+            await _clearSavedPassword();
+            
             Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(builder: (_) => const LoginView()),

@@ -36,7 +36,6 @@ class BeforeAfterView extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                
                   Expanded(
                     child: Align(
                       alignment: Alignment.bottomCenter,

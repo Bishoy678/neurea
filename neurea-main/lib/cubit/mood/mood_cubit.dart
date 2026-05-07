@@ -11,13 +11,13 @@ class MoodCubit extends Cubit<MoodState> {
   }
 
   Future<void> loadMoodHistory() async {
-    _safeEmit(MoodLoading());
-    try {
-      final userId = Supabase.instance.client.auth.currentUser?.id;
-      if (userId == null) {
-        _safeEmit(MoodError('User not logged in'));
-        return;
-      }
+     _safeEmit(MoodLoading());
+  try {
+    final userId = Supabase.instance.client.auth.currentUser?.id;
+    if (userId == null) {
+      _safeEmit(MoodError('User not logged in'));  
+      return;
+    }
 
       final response = await Supabase.instance.client
           .from('mood_checkins')

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:neurea/payment/Payment_Screen.dart';
 
 class ProProfile extends StatelessWidget {
   const ProProfile({super.key});
@@ -18,57 +19,94 @@ class ProProfile extends StatelessWidget {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-     body: ScrollConfiguration(
-  behavior: const ScrollBehavior().copyWith(overscroll: false),
-  child: SingleChildScrollView(
-    padding: EdgeInsets.symmetric(horizontal: sw * 0.05),
-    child: Column(
-          children: [
-            SizedBox(height: sw * 0.02),
-            Text(
-              'Choose Your Plan',
-              style: TextStyle(
-                fontSize: sw * 0.055,
-                fontWeight: FontWeight.bold,
+      body: ScrollConfiguration(
+        behavior: const ScrollBehavior().copyWith(overscroll: false),
+        child: SingleChildScrollView(
+          padding: EdgeInsets.symmetric(horizontal: sw * 0.05),
+          child: Column(
+            children: [
+              SizedBox(height: sw * 0.02),
+              Text(
+                'Choose Your Plan',
+                style: TextStyle(
+                  fontSize: sw * 0.055,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-            SizedBox(height: sw * 0.02),
-            Text(
-              'Find the perfect plan to enjoy extra insights and\nexclusive benefits.',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: sw * 0.033, color: Colors.grey),
-            ),
-            SizedBox(height: sw * 0.06),
-            _PlanCard(
-              sw: sw,
-              title: 'Premium',
-              price: '\$80',
-              period: 'USD / Year',
-              description:
-                  'Best for dedicated users seeking unlimited insights and priority access.',
-              features: const [
-                'Advanced Mood Reports',
-                'Unlimited AI Chats',
-                'Priority Therapist Booking',
-                'Ad-Free Experience',
-              ],
-              onSubscribe: () {},
-            ),
-            SizedBox(height: sw * 0.04),
-            _PlanCard(
-              sw: sw,
-              title: 'Standard',
-              price: '\$15',
-              period: 'USD / Month',
-              description:
-                  'Great for regular users wanting more features month-to-month.',
-              features: const ['Advanced Mood Reports', 'Unlimited AI Chats'],
-              onSubscribe: () {},
-            ),
-            SizedBox(height: sw * 0.08),
-          ],
+              SizedBox(height: sw * 0.02),
+              Text(
+                'Find the perfect plan to enjoy extra insights and\nexclusive benefits.',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: sw * 0.033, color: Colors.grey),
+              ),
+              SizedBox(height: sw * 0.06),
+              _PlanCard(
+                sw: sw,
+                title: 'Premium',
+                price: '\$80',
+                period: 'USD / Year',
+                description:
+                    'Best for dedicated users seeking unlimited insights and priority access.',
+                features: const [
+                  'Advanced Mood Reports',
+                  'Unlimited AI Chats',
+                  'Priority Therapist Booking',
+                  'Ad-Free Experience',
+                ],
+                onSubscribe: () {
+               
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => PaymentScreen(
+                        therapistName: 'Neurea Premium',
+                        therapistImage: '',
+                        specialty: 'Subscription',
+                        appointmentDay: '',
+                        appointmentDate: '',
+                        appointmentTime: '',
+                        price: 80.0,
+                        therapistId: 'premium_plan',
+                      ),
+                    ),
+                  );
+                },
+              ),
+              SizedBox(height: sw * 0.04),
+              _PlanCard(
+                sw: sw,
+                title: 'Standard',
+                price: '\$15',
+                period: 'USD / Month',
+                description:
+                    'Great for regular users wanting more features month-to-month.',
+                features: const [
+                  'Advanced Mood Reports',
+                  'Unlimited AI Chats',
+                ],
+                onSubscribe: () {
+                  
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => PaymentScreen(
+                        therapistName: 'Neurea Standard',
+                        therapistImage: '',
+                        specialty: 'Subscription',
+                        appointmentDay: '',
+                        appointmentDate: '',
+                        appointmentTime: '',
+                        price: 15.0,
+                        therapistId: 'standard_plan',
+                      ),
+                    ),
+                  );
+                },
+              ),
+              SizedBox(height: sw * 0.08),
+            ],
+          ),
         ),
-  ),
       ),
     );
   }

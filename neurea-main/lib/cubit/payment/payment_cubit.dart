@@ -13,6 +13,8 @@ class PaymentCubit extends Cubit<PaymentState> {
   Future<void> confirmPayment({
     required String therapistId,
     required String therapistName,
+    required String therapistImage,
+    required String specialty,
     required String appointmentDay,
     required String appointmentDate,
     required String appointmentTime,
@@ -23,8 +25,7 @@ class PaymentCubit extends Cubit<PaymentState> {
     String? cvc,
   }) async {
     emit(PaymentLoading());
-    
-    
+
     if (testMode && forceError) {
       await Future.delayed(const Duration(seconds: 1));
       emit(PaymentError('Test Error: Payment failed intentionally. Please try again later.'));
@@ -38,10 +39,12 @@ class PaymentCubit extends Cubit<PaymentState> {
         return;
       }
 
-     
       await Supabase.instance.client.from('payments').insert({
         'user_id': userId,
         'therapist_id': therapistId,
+        'therapist_name': therapistName,
+        'therapist_image': therapistImage,
+        'therapist_specialty': specialty,
         'amount': price,
         'status': 'completed',
         'appointment_day': appointmentDay,
@@ -49,7 +52,6 @@ class PaymentCubit extends Cubit<PaymentState> {
         'appointment_time': appointmentTime,
       });
 
-  
       await NotificationHelper.send(
         title: 'Payment Successful 💳',
         description:
@@ -57,16 +59,16 @@ class PaymentCubit extends Cubit<PaymentState> {
         type: 'reminder',
       );
 
-  
       emit(PaymentSuccess(
         message: 'Payment Successful! Your appointment has been booked successfully.',
       ));
-      
     } catch (e) {
-     
+    
       emit(PaymentError(
         'Failed to confirm payment. Please try again later.\nError: ${e.toString()}',
       ));
     }
   }
-}
+} 
+
+

@@ -241,4 +241,4 @@ class _EmergencycontactViewState extends State<EmergencycontactView> {
       ),
     );
   }
-}
+} 

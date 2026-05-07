@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:neurea/cubit/auth/auth_cubit.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' hide AuthState;
 import 'package:neurea/cubit/auth/auth_state.dart';
 import 'package:neurea/features/Forget_Password2.dart';
 
@@ -21,8 +22,10 @@ class _ForgetPasswordState extends State<ForgetPassword> {
     super.dispose();
   }
 
-  void _submit(BuildContext context) {
-    if (_emailController.text.isEmpty) {
+  Future<void> _submit(BuildContext context) async {
+    final email = _emailController.text.trim();
+    
+    if (email.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Please enter your email'),
@@ -31,7 +34,25 @@ class _ForgetPasswordState extends State<ForgetPassword> {
       );
       return;
     }
-    context.read<AuthCubit>().forgotPassword(_emailController.text.trim());
+    
+    final supabase = Supabase.instance.client;
+  final user = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('email', email)
+    .maybeSingle();
+
+if (user == null) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(
+      content: Text('This email is not registered'),
+      backgroundColor: Colors.red,
+    ),
+  );
+  return;
+}
+    
+    context.read<AuthCubit>().forgotPassword(email);
   }
 
   @override
@@ -177,4 +198,4 @@ class _ForgetPasswordState extends State<ForgetPassword> {
       ),
     );
   }
-}
+} 
