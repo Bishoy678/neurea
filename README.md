@@ -10,7 +10,7 @@ A production-ready Flutter application built to support emotional well-being and
 
 
 🚀 Getting Started
-git clone https://github.com/Ahmedmego-ux/Agri-Guide.git
+git clone https:
 cd neurea
 flutter pub get
 flutter run
