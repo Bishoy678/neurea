@@ -1,16 +1,3 @@
-# neurea
-
-A new Flutter project.
-
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+🧠 Neurea — Flutter Mental Health App
+A production-ready Flutter application built to support emotional well-being and mental health. Focused on AI-powered therapy chatbot, professional therapist booking, daily mood tracking, and interactive breathing & focusing exercises. Also includes mini games for stress relief and crisis support features for added safety. Supports dark mode and clean user experience. Built with Clean Architecture, Cubit (BLoC) state management, and Firebase for authentication, real-time chat storage, and user data management.
+⚡ Built to demonstrate real-world Flutter development practices: scalable structure, clean separation of concerns, and robust state handling.
