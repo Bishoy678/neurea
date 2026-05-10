@@ -5,3 +5,23 @@ A production-ready Flutter application built to support emotional well-being and
 ⚡ Built to demonstrate real-world Flutter development practices: scalable structure, clean separation of concerns, and robust state handling.
 
 📱 Screenshots
+
+
+
+
+🚀 Getting Started
+git clone https://github.com/Ahmedmego-ux/Agri-Guide.git
+cd neurea
+flutter pub get
+flutter run
+
+
+🔌 APIs Used
+
+
+
+
+👨‍💻 Author
+Bishoy Kamel — Flutter Developer
+
+⭐ If you found this useful, please give it a star on GitHub!
