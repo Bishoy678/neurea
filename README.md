@@ -1,3 +1,7 @@
 🧠 Neurea — Flutter Mental Health App
+
 A production-ready Flutter application built to support emotional well-being and mental health. Focused on AI-powered therapy chatbot, professional therapist booking, daily mood tracking, and interactive breathing & focusing exercises. Also includes mini games for stress relief and crisis support features for added safety. Supports dark mode and clean user experience. Built with Clean Architecture, Cubit (BLoC) state management, and Firebase for authentication, real-time chat storage, and user data management.
+
 ⚡ Built to demonstrate real-world Flutter development practices: scalable structure, clean separation of concerns, and robust state handling.
+
+📱 Screenshots
