@@ -6,7 +6,7 @@ A production-ready Flutter application built to support emotional well-being and
 
 📱 Screenshots
 
-<<<<<<< HEAD
+
 | Home | Mood Tracking | Notification |
 |------|-------------|-----------|
 | ![Home](assets/Home0.jpg) |![Mood](assets/MoodTraking0.jpg) | ![Notification](assets/Notification0.jpg) |
@@ -83,6 +83,12 @@ lib/
 │   └── splash/
 │
 ├── Home/
+    ├──Breathing_Exercises.dart
+    ├──Explore_Screen.dart
+    ├──Focusing.dart
+    ├──Home_Screen_daily.dart
+    ├──Mini_Games.dart
+    ├──Statistics_Screen.dart
 │
 ├── Medicain/
 │   └── Care_Plan_Screen.dart
