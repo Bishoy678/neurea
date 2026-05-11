@@ -50,6 +50,7 @@ A production-ready Flutter application built to support emotional well-being and
 
 
 🏗️ Project Structure
+
 lib/
 ├── core/
 │   └── presentation/
@@ -111,38 +112,16 @@ lib/
 │
 └── main.dart
 
-
 🚀 Getting Started
-git clone https://github.com/Bishoy678/neurea.git
-=======
-
-
-
-🚀 Getting Started
-git clone https:
->>>>>>> 5661e7ab4bb79ccba6334db510dd03dba7670c43
+git clone https:https://github.com/Bishoy678/neurea.git
 cd neurea
 flutter pub get
 flutter run
 
-<<<<<<< HEAD
-Requirements: Flutter SDK 3.x+, Android Studio or VS Code 
-
+Requirements: Flutter SDK 3.x+, Android Studio or VS Code
 
 👨‍💻 Author
 
 Bishoy Kamel — Flutter Developer
 
 ⭐ If you found this useful, please give it a star on GitHub!
-=======
-
-🔌 APIs Used
-
-
-
-
-👨‍💻 Author
-Bishoy Kamel — Flutter Developer
-
-⭐ If you found this useful, please give it a star on GitHub!
->>>>>>> 5661e7ab4bb79ccba6334db510dd03dba7670c43
