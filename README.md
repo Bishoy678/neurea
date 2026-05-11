@@ -6,6 +6,7 @@ A production-ready Flutter application built to support emotional well-being and
 
 📱 Screenshots
 
+<<<<<<< HEAD
 | Home | Mood Tracking | Notification |
 |------|-------------|-----------|
 | ![Home](assets/Home0.jpg) |![Mood](assets/MoodTraking0.jpg) | ![Notification](assets/Notification0.jpg) |
@@ -18,9 +19,8 @@ A production-ready Flutter application built to support emotional well-being and
 |-----------|-----------|---------|
 | ![MiniGames](assets/MiniGames0.jpg) | ![Breasing](assets/Breasing0.jpg) | ![Focusing](assets/Focusing0.jpg) |
 
-
 | Chatbot | Chatbot |
-|-----------|-----------|---------|
+|-----------|-----------|
 | ![Chatbot](assets/Chatbot0.jpg) | ![Chatbot](assets/Chatbot1.jpg) | 
 
 
@@ -50,7 +50,6 @@ A production-ready Flutter application built to support emotional well-being and
 
 
 🏗️ Project Structure
-
 lib/
 ├── core/
 │   └── presentation/
@@ -112,12 +111,21 @@ lib/
 │
 └── main.dart
 
+
 🚀 Getting Started
 git clone https://github.com/Bishoy678/neurea.git
+=======
+
+
+
+🚀 Getting Started
+git clone https:
+>>>>>>> 5661e7ab4bb79ccba6334db510dd03dba7670c43
 cd neurea
 flutter pub get
 flutter run
 
+<<<<<<< HEAD
 Requirements: Flutter SDK 3.x+, Android Studio or VS Code 
 
 
@@ -126,3 +134,15 @@ Requirements: Flutter SDK 3.x+, Android Studio or VS Code
 Bishoy Kamel — Flutter Developer
 
 ⭐ If you found this useful, please give it a star on GitHub!
+=======
+
+🔌 APIs Used
+
+
+
+
+👨‍💻 Author
+Bishoy Kamel — Flutter Developer
+
+⭐ If you found this useful, please give it a star on GitHub!
+>>>>>>> 5661e7ab4bb79ccba6334db510dd03dba7670c43
