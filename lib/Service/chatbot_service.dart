@@ -47,7 +47,7 @@ import 'dart:convert';
 class ChatService {
   static const String apiUrl = 'https://djangograduationprojectfinalversion-production.up.railway.app/api/chatbot/';
   
-  static const String token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzc4MjUzOTk1LCJpYXQiOjE3NzgxNjc1OTYsImp0aSI6IjQ3MGVmODUzYWY0MTQ4NmZhODRhZmQ2OGYwN2QzYjUyIiwidXNlcl9pZCI6IjciLCJyb2xlIjoicGF0aWVudCIsImVtYWlsIjoic29oYWliZW1hZGFpQGdtYWlsLmNvbSJ9.kgwvixNumO4TT4hdgN0iXq1c_zxqDRJYXxAqwz_J160';
+  static const String token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzc4NTA3NzQ3LCJpYXQiOjE3Nzg0MjEzNDcsImp0aSI6IjQ3NTFmZjE4MzU2ZjQ4MmZhZDVkNWJjODA4OGVhY2NmIiwidXNlcl9pZCI6IjciLCJyb2xlIjoicGF0aWVudCIsImVtYWlsIjoic29oYWliZW1hZGFpQGdtYWlsLmNvbSJ9.0C2SXGZzMpKZ807zQe1-AA8oycpBjBWchBcoD-JEO4w';
   
   static Future<String> sendMessage(String message) async {
     try {

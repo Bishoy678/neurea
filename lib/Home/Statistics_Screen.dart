@@ -171,12 +171,12 @@ class _StatisticsAppBar extends StatelessWidget implements PreferredSizeWidget {
         ],
       ),
       centerTitle: true,
-      actions: [
-        IconButton(
-          icon: Icon(Icons.tune_rounded, color: Colors.black, size: sw * 0.05),
-          onPressed: () {},
-        ),
-      ],
+      // actions: [
+      //   IconButton(
+      //     icon: Icon(Icons.tune_rounded, color: Colors.black, size: sw * 0.05),
+      //     onPressed: () {},
+      //   ),
+      // ],
       bottom: PreferredSize(
         preferredSize: const Size.fromHeight(1),
         child: Container(height: 1, color: Colors.grey.shade100),

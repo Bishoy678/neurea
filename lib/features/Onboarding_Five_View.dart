@@ -1,7 +1,5 @@
 // ignore_for_file: control_flow_in_finally
 import 'package:flutter/material.dart';
-import 'package:neurea/core/presentation/screens/Notification_Helper.dart'
-    show NotificationHelper;
 import 'package:neurea/features/auth/presentation/views/daily_checkin_view.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
